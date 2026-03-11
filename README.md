@@ -25,8 +25,8 @@
 ## 如何运行
 ### 1. 克隆本仓库
 ```bash
-git clone https://github.com/你的用户名/rain-ai-demo.git
-cd rain-ai-demo
+git clone https://github.com/Utho-meta/raindrol-ai-demo.git
+cd raindrol-ai-demo
 ```
 ### 2. 安装依赖
 确保已安装 Python 3.8+，然后运行：
@@ -41,7 +41,7 @@ python train.py
 
 ## 项目文件结构
 ```
-rain-ai-demo/  
+raindrol-ai-demo/  
 ├── game.py # 原始游戏代码（已修改，导入时不自动运行）  
 ├── env.py # 强化学习环境  
 ├── train.py # DQN 训练脚本  
