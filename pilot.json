@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "algorithm": "cross-entropy policy search",
+  "seed": 41,
+  "generations": 10,
+  "population": 20,
+  "parameters": {
+    "spacing": 82.76641009190587,
+    "center_pull": 0.8081526833380999,
+    "crowd_radius": 72.0555807309995,
+    "crowd_push": 2.457916708672073,
+    "dead_zone": 0.24878386785908357,
+    "start_charge": 283.80748934958865,
+    "release_normal": 54.32925739495484,
+    "release_charged": 240
+  }
+}

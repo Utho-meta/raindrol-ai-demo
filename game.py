@@ -5,18 +5,16 @@ import math
 import os
 import time
 
-# 获取资源路径（兼容 pyinstaller 打包后的 exe）
+# Resolve assets in source and packaged builds.
 def get_path(relative_path):
-    if getattr(sys, 'frozen', False):  # 如果是打包后的 exe
+    if getattr(sys, 'frozen', False):
         base_path = sys._MEIPASS
-    else:  # 普通运行
+    else:
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 
-# ==================== 常量定义（可在导入时使用）====================
 WIDTH, HEIGHT = 800, 600
 
-# 定义颜色
 GRAY = (128,128,128)
 BLACK = (0,0,0)
 RED = (255,0,0)
@@ -26,26 +24,23 @@ YELLOW = (255,255,0)
 CYAN = (0,255,255)
 MAGENTA = (255, 0, 255)
 
-# 小球参数
 player_radius = 15
 player_speed = 4
 player_x, player_y = WIDTH // 2, HEIGHT // 2
 
-# 敌人参数
 enemies = []
 enemy_size = 30
 enemy_speed = 2
 spawn_interval = 1500
-spawn_event = pygame.USEREVENT + 1  # 事件常量，不需要 pygame 初始化
+spawn_event = pygame.USEREVENT + 1
 
-# 波纹攻击参数
+# Waves store [x, y, radius, max_radius, hits, speed].
 waves = []
 normal_wave_speed = 3
 charged_wave_speed = 5
 normal_wave_radius = 75
 charged_wave_radius = 150
 
-# 蓄力相关
 charging = False
 charge_canceled = False
 charge_start_time = 0
@@ -54,28 +49,22 @@ charge_max_time = 0.5
 charge_max_start_time = 0
 charge_cancel_played = False
 
-# 分数（初始值，会被重置）
 score = 0
 show_double = False
 double_timer = 0
 double_wave_hits = 0
 
-# 游戏结束标志
 game_over = False
 game_over_played = False
 
-# ==================== 主程序（仅在直接运行时执行）====================
 if __name__ == "__main__":
-    # 初始化pygame
     pygame.init()
     pygame.mixer.init()
 
-    # 加载背景音乐
     pygame.mixer.music.load(get_path("sounds/bgm_piano_converted.wav"))
     pygame.mixer.music.set_volume(0.3)
-    pygame.mixer.music.play(-1)  # 循环播放
+    pygame.mixer.music.play(-1)
 
-    # 加载音效
     attack_sound = pygame.mixer.Sound(get_path("sounds/attack.wav"))
     charge_cancel_sound = pygame.mixer.Sound(get_path("sounds/charge_cancel.wav"))
     charged_attack_sound = pygame.mixer.Sound(get_path("sounds/charged_attack.wav"))
@@ -86,29 +75,27 @@ if __name__ == "__main__":
     def play_random_pop():
         random.choice(pop_sounds).play()
 
-    # 创建窗口
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("raindrol")
 
-    # 设置定时器
     pygame.time.set_timer(spawn_event, spawn_interval)
 
-    # 字体（需要 pygame 初始化后才能创建）
-    font_small = pygame.font.SysFont(None, 24)   # 分数
+    font_small = pygame.font.SysFont(None, 24)
     font_medium = pygame.font.SysFont(None, 32)  # Double!
     font_large = pygame.font.SysFont(None, 48)   # Game Over
 
-    # 游戏循环
+    from ai_controls import AIControls
+    ai = AIControls(sys.modules[__name__])
+
     clock = pygame.time.Clock()
     while True:
-        for event in pygame.event.get():
+        for event in ai.events(pygame.event.get()):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN and game_over:
-                    # 重置游戏状态
                     player_x, player_y = WIDTH // 2, HEIGHT // 2
                     enemies = []
                     waves = []
@@ -147,7 +134,7 @@ if __name__ == "__main__":
                     charge_cancel_played = False
 
         if not game_over:
-            keys = pygame.key.get_pressed()
+            keys = ai.keys()
             if keys[pygame.K_LEFT] and player_x - player_radius > 0:
                 player_x -= player_speed
             if keys[pygame.K_RIGHT] and player_x + player_radius < WIDTH:
@@ -262,5 +249,6 @@ if __name__ == "__main__":
                                        HEIGHT // 2 - restart_text.get_height() // 2 + 30))
             screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2 - 100))
 
+        ai.draw_switch(screen)
         pygame.display.flip()
         clock.tick(60)
